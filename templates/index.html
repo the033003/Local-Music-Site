@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Music Player</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Local Music Player</h1>
+            <button id="theme-toggle" title="Toggle dark mode">🌙</button>
+        </div>
+
+        <div class="sections">
+            <section id="library" class="library-section">
+                <h2>Library</h2>
+                <div class="sort-container">
+                    <label for="sort-select">Sort by:</label>
+                    <select id="sort-select">
+                        <option value="alpha">Alphabetical</option>
+                        <option value="random">Random</option>
+                    </select>
+                    <button id="refresh-random-btn" title="New random order" style="display: none;">🔄</button>
+
+                    <input type="text" id="library-search" placeholder="Search songs..." class="library-search-input">
+                </div>
+                <ul id="song-list" class="song-list"></ul>
+            </section>
+
+            <section id="playlists" class="playlists-sidebar">
+                <h2>Playlists</h2>
+                <div class="playlist-create">
+                    <input type="text" id="playlist-name" placeholder="New playlist name">
+                    <button onclick="createPlaylist()">Create</button>
+                </div>
+                <ul id="playlist-list"></ul>
+                <div id="current-playlist"></div>
+            </section>
+        </div>
+    </div>
+
+    <div id="player" class="player">
+        <audio id="audio" onended="playNext()"></audio>
+
+        <div class="player-content">
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                    <div class="progress-thumb" id="progress-thumb"></div>
+                </div>
+                <div class="time-display">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+            </div>
+
+            <div class="now-playing">
+                <span id="now-playing">Nothing playing</span>
+            </div>
+
+            <div class="player-controls">
+                <button onclick="toggleShuffle()" class="btn shuffle-btn" title="Toggle shuffle">
+                    Shuffle: <span id="shuffle-status">Off</span>
+                </button>
+
+                <div class="transport">
+                    <button onclick="seekBackward()" class="btn small" title="-10 seconds">-10s</button>
+                    <button onclick="playPrevious()" class="btn" title="Previous track">⏮</button>
+                    <button onclick="togglePlayPause()" class="btn play-pause" title="Play / Pause">▶</button>
+                    <button onclick="playNext()" class="btn" title="Next track">⏭</button>
+                    <button onclick="seekForward()" class="btn small" title="+10 seconds">+10s</button>
+                </div>
+
+                <div class="volume-area">
+                    <label for="volume" class="volume-label">Volume</label>
+                    <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/player.js"></script>
+</body>
+</html>
