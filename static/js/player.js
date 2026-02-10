@@ -14,6 +14,8 @@ const currentTimeEl = document.getElementById('current-time');
 const durationEl = document.getElementById('duration');
 const sortSelect = document.getElementById('sort-select');
 const refreshRandomBtn = document.getElementById('refresh-random-btn');
+const librarySearch = document.getElementById('library-search');
+const backToTopBtn = document.getElementById('back-to-top');
 
 // Theme
 function setTheme(theme) {
@@ -23,7 +25,7 @@ function setTheme(theme) {
 }
 
 const savedTheme = localStorage.getItem('theme') ||
-(window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                   (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 setTheme(savedTheme);
 
 themeToggle.addEventListener('click', () => {
@@ -64,12 +66,11 @@ progressBar.addEventListener('click', (e) => {
     audio.currentTime = pos * audio.duration;
 });
 
-// Library with sorting
+// Library with sorting + search
 async function loadLibrary(sortMode = 'alpha') {
     const res = await fetch('/songs');
     let songs = await res.json();
 
-    // Ensure we have an array of strings
     if (!Array.isArray(songs)) {
         console.error("Unexpected /songs response:", songs);
         songs = [];
@@ -83,10 +84,21 @@ async function loadLibrary(sortMode = 'alpha') {
 
     allLibrarySongs = songs;
 
+    renderSongs(songs);
+
+    // Show/hide refresh button
+    if (sortMode === 'random') {
+        refreshRandomBtn.style.display = 'inline-block';
+    } else {
+        refreshRandomBtn.style.display = 'none';
+    }
+}
+
+function renderSongs(songsList) {
     const list = document.getElementById('song-list');
     list.innerHTML = '';
 
-    songs.forEach(song => {
+    songsList.forEach(song => {
         const li = document.createElement('li');
         li.className = 'song-item';
 
@@ -111,21 +123,30 @@ async function loadLibrary(sortMode = 'alpha') {
         li.onclick = () => playFromLibrary(song);
         list.appendChild(li);
     });
-
-    // Show/hide refresh button only when random is active
-    if (sortMode === 'random') {
-        refreshRandomBtn.style.display = 'inline-block';
-    } else {
-        refreshRandomBtn.style.display = 'none';
-    }
 }
 
 sortSelect.addEventListener('change', () => {
+    librarySearch.value = '';
     loadLibrary(sortSelect.value);
 });
 
 refreshRandomBtn.addEventListener('click', () => {
     loadLibrary('random');
+});
+
+librarySearch.addEventListener('input', () => {
+    const query = librarySearch.value.toLowerCase().trim();
+
+    if (!query) {
+        renderSongs(allLibrarySongs);
+        return;
+    }
+
+    const filtered = allLibrarySongs.filter(song =>
+        song.toLowerCase().includes(query)
+    );
+
+    renderSongs(filtered);
 });
 
 function playFromLibrary(song) {
@@ -297,7 +318,7 @@ function seekForward()  { audio.currentTime += 10; }
 function seekBackward() { audio.currentTime = Math.max(0, audio.currentTime - 10); }
 
 window.onload = () => {
-    sortSelect.value = 'alpha';          // Force dropdown back to Alphabetical on every reload
+    sortSelect.value = 'alpha';
     loadLibrary('alpha');
     loadPlaylists();
     audio.volume = volumeSlider.value;
